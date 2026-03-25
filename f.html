@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>🏏 IPL Match Insight System</title>
+
+```
+<style>
+    body {
+        font-family: Arial;
+        background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                    url("https://images.pexels.com/photos/274506/pexels-photo-274506.jpeg");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+
+    h1 {
+        background: rgba(0,0,0,0.7);
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    textarea {
+        width: 80%;
+        height: 150px;
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    button {
+        padding: 12px 25px;
+        background: orange;
+        border: none;
+        border-radius: 10px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .box {
+        background: rgba(0,0,0,0.8);
+        margin: 20px auto;
+        padding: 20px;
+        width: 85%;
+        border-radius: 15px;
+    }
+
+    .card {
+        background: white;
+        color: black;
+        margin: 10px;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: bold;
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .section {
+        margin-top: 20px;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .scoreboard {
+        background: black;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<h1>🏏 CSK 🟡 vs MI 🔵 - AI-Powered Cricket Highkight Generator🏏</h1>
+
+<p>Enter match data (Example: 18.1 SIX 6 Dhoni)</p>
+
+<textarea id="input"></textarea><br><br>
+
+<button onclick="generate()">Generate Highlights</button>
+
+<div id="output" class="box"></div>
+
+<script>
+
+function getComment(event, over, player) {
+    if (event === "SIX") {
+        return over >= 18 ? `🔥 ${player} smashes a HUGE SIX under pressure!` : `${player} hits a massive SIX!`;
+    }
+    if (event === "FOUR") return `✨ ${player} plays a classy FOUR!`;
+    if (event === "WICKET") return `💥 WICKET! ${player} is OUT!`;
+    if (event === "1") return `${player} takes a quick single.`;
+    if (event === "2") return `${player} runs hard for two runs.`;
+    return `${player} defends. Dot ball.`;
+}
+
+function getPhase(over) {
+    if (over <= 6) return "POWERPLAY";
+    if (over <= 15) return "MIDDLE OVERS";
+    return "DEATH OVERS";
+}
+
+function generate() {
+
+    let text = document.getElementById("input").value;
+    let lines = text.split("\n");
+
+    let highlights = [];
+    let players = {};
+    let score = 0;
+    let wickets = 0;
+
+    let output = "";
+
+    // Scoreboard
+    output += `<div class="scoreboard">🏏 Score: 0 / 0</div>`;
+
+    output += "<div class='section'>🎤 Live Commentary</div>";
+
+    for (let line of lines) {
+
+        let parts = line.trim().split(" ");
+        if (parts.length < 4) continue;
+
+        let over = parts[0];
+        let event = parts[1];
+        let runs = parseInt(parts[2]);
+        let batsman = parts[3];
+
+        let overNum = parseInt(over.split(".")[0]);
+
+        score += runs;
+        if (event === "WICKET") wickets++;
+
+        let comment = getComment(event, overNum, batsman);
+
+        output += `<div class="card">👉 ${over} | ${comment}</div>`;
+
+        if (event === "SIX" || event === "FOUR" || event === "WICKET") {
+            highlights.push({
+                over: over,
+                text: comment,
+                phase: getPhase(overNum)
+            });
+
+            players[batsman] = (players[batsman] || 0) + 10;
+        }
+    }
+
+    // Update Scoreboard
+    output = output.replace("0 / 0", `${score} / ${wickets}`);
+
+    // Highlights
+    output += "<div class='section'>🔥 Top Highlights</div>";
+
+    highlights.forEach(h => {
+        output += `<div class="card">⭐ ${h.over} (${h.phase}) | ${h.text}</div>`;
+    });
+
+    // Player Impact
+    output += "<div class='section'>🏆 Player Impact</div>";
+
+    for (let p in players) {
+        output += `<div class="card">${p} → ${players[p]}</div>`;
+    }
+
+    document.getElementById("output").innerHTML = output;
+}
+
+</script>
+
+</body>
+</html>
